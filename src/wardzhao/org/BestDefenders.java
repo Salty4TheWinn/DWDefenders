@@ -8,7 +8,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,8 +17,9 @@ public class BestDefenders {
 
 	private final String INPUT_FILE_NAME = "多样性.txt";
 	private final String OUTPUT_FILE_NAME = "布阵.txt";
-	private ArrayList<Hero> optionalHero = new ArrayList<Hero>();
+	private ArrayList<Hero> candidateHero = new ArrayList<Hero>();
 	private ArrayList<Hero> chosenHero = new ArrayList<Hero>();
+	private Summoner[] summoners = null;
 	
 	// 读取一个tab分隔的文本文件，列要求：系别，英雄，成员，战力，组别，用途（AQ/AW进攻/AW布防，空着默认布防）
 	// 实际系别没有用到
@@ -31,7 +33,7 @@ public class BestDefenders {
 		int rowNumber = 0;
 		String heroName;
 		Integer pi;
-		String summoner;
+		String summonerName;
 		String group;
 		Boss boss = new Boss();
 		
@@ -49,10 +51,12 @@ public class BestDefenders {
 				
 			    String[] segments = line.split("\t"); //按tab分割
 			    
+			    // skip lines which columns are less than 5
 			    if (segments.length < 5) {
 			    	continue;
 			    }
 			    
+			    // skip lines which hero is for AQ or AW attack
 			    if (segments.length == 6 && (segments[5].startsWith("AQ") || segments[5].startsWith("AW进攻"))) {
 			    	continue;
 			    }
@@ -75,23 +79,48 @@ public class BestDefenders {
 					continue;
 				}
 			    
-			    // hero name
-			    summoner = segments[2];
-			    if (StringUtils.isBlank(summoner)) {
+			    // summoner
+			    summonerName = segments[2];
+			    if (StringUtils.isBlank(summonerName)) {
 			    	continue;
 			    }
 			    
-			    // hero name
+			    // group
 			    group = segments[4];
 			    if (StringUtils.isBlank(group)) {
 			    	continue;
 			    }
 			    
-			    // 列要求：系别，英雄，成员，战力，组别
-			   // 构造要求 String name, Integer pi, String summoner, String group
-			    optionalHero.add(new Hero(	heroName,  pi,  summoner, group, boss.isBoss(heroName)));
+			   // load heros to list
+			    candidateHero.add(new Hero(	heroName,  pi,  summonerName, group, boss.isBoss(heroName)));
 			    
 			} // while
+			
+			// create summoner map
+			HashMap<String, Summoner> mapSummoner = new HashMap<String, Summoner>();
+			
+			// fill summoner's heros
+			Summoner summoner = null;
+			for (Hero hero : candidateHero) {
+				
+				// get summoner
+				if (mapSummoner.containsKey(hero.getSummoner())) {
+					summoner = mapSummoner.get(hero.getSummoner());
+				} else {
+					summoner = new Summoner(hero.getGroup(), hero.getSummoner());
+					mapSummoner.put(hero.getSummoner(), summoner);
+				}
+				
+				summoner.addHero(hero);
+			}
+			
+			// calculate summoner's pi
+			this.summoners = new Summoner[mapSummoner.values().size()];
+			int i = 0;
+			for (Summoner player : mapSummoner.values()) {
+				player.CalculatePI();
+				this.summoners[i++] = player;
+			}
 			
 			br.close();
 			
@@ -107,7 +136,10 @@ public class BestDefenders {
 	
 	// 按照boss和战力排序 优先确定boss 然后定战力高的英雄
 	public void sort() {
-		this.optionalHero.sort(new HeroComparator() );
+		this.candidateHero.sort(new HeroComparator() );
+		
+		// sort summoner by pi
+		Arrays.sort(this.summoners);
 	}
 	
 	// 挑选英雄
@@ -116,7 +148,7 @@ public class BestDefenders {
 		HeroQualification heroCheck = new HeroQualification();
 		SummonerQualification summonerCheck = new SummonerQualification();
 		
-		for (Hero hero : this.optionalHero) {
+		for (Hero hero : this.candidateHero) {
 			if (heroCheck.canBeChosen(hero.getGroup(), hero.getName()) && summonerCheck.canBeChosen(hero.getSummoner())) {
 				heroCheck.choose(hero.getGroup(), hero.getName());
 				summonerCheck.choose(hero.getSummoner());
