@@ -8,29 +8,25 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Properties;
 
-public class Boss {
+public class Configuration {
 	
-	// Ö¸¶¨boss tab·Ö¿ª
+	// æŒ‡å®šboss tabåˆ†å¼€
 
-	private HashSet<String> bossSet;
+	private static HashSet<String> bossSet = new HashSet<String>();
 	
-	public Boss() {
-		super();
-		this.bossSet = new HashSet<String>();
-		this.setBossList();
-	}
+	public static Properties properties = null;
 	
-	private void setBossList() {
+	public static void loadConfFile() {
 		try {
 
 			FileInputStream fis = new FileInputStream(new File("conf.properties"));
 			InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
-			Properties prop = new Properties();  
-			prop.load(isr);
-			String bosses = prop.getProperty("bosses"); 
+			Configuration.properties = new Properties();  
+			Configuration.properties.load(isr);
+			String bosses = properties.getProperty("bosses"); 
 			String[] bossArray = bosses.split("\t");
 			for (String e : bossArray) {
-				this.bossSet.add(e);
+				Configuration.bossSet.add(e);
 			}
 			
 			isr.close();
@@ -44,8 +40,8 @@ public class Boss {
 
 	}
 	
-	// ÅĞ¶ÏÒ»¸öÓ¢ĞÛÊÇ²»ÊÇboss bossÓÅÏÈÑ¡
-	public boolean isBoss(String heroName) {
-		return bossSet.contains(heroName);
+	// åˆ¤æ–­ä¸€ä¸ªè‹±é›„æ˜¯ä¸æ˜¯boss bossä¼˜å…ˆé€‰
+	public static boolean isBoss(String heroName) {
+		return Configuration.bossSet.contains(heroName);
 	}
 }

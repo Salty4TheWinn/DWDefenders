@@ -3,31 +3,30 @@ package wardzhao.org;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class BestDefenders {
+public class DefenderLoader {
 
-	private final String INPUT_FILE_NAME = "¶àÑùĞÔ.txt";
-	private final String OUTPUT_FILE_NAME = "²¼Õó.txt";
-	private ArrayList<Hero> candidateHero = new ArrayList<Hero>();
-	private ArrayList<Hero> chosenHero = new ArrayList<Hero>();
+	private final String INPUT_FILE_NAME = "å¤šæ ·æ€§.txt";
+//	private final String OUTPUT_FILE_NAME = "å¸ƒé˜µ.txt";
+//	private ArrayList<Hero> chosenHero = new ArrayList<Hero>();
 	private Summoner[] summoners = null;
 	
-	// ¶ÁÈ¡Ò»¸ötab·Ö¸ôµÄÎÄ±¾ÎÄ¼ş£¬ÁĞÒªÇó£ºÏµ±ğ£¬Ó¢ĞÛ£¬³ÉÔ±£¬Õ½Á¦£¬×é±ğ£¬ÓÃÍ¾£¨AQ/AW½ø¹¥/AW²¼·À£¬¿Õ×ÅÄ¬ÈÏ²¼·À£©
-	// Êµ¼ÊÏµ±ğÃ»ÓĞÓÃµ½
-	// ×é±ğÓÃÔÚÃ¿¸ö×éµÄÓ¢ĞÛ²»ÖØ¸´ÅĞ¶ÏÉÏ
-	public void loadFile() {
+	// è¯»å–ä¸€ä¸ªtabåˆ†éš”çš„æ–‡æœ¬æ–‡ä»¶ï¼Œåˆ—è¦æ±‚ï¼šç³»åˆ«ï¼Œè‹±é›„ï¼Œæˆå‘˜ï¼Œæˆ˜åŠ›ï¼Œç»„åˆ«ï¼Œç”¨é€”ï¼ˆAQ/AWè¿›æ”»/AWå¸ƒé˜²ï¼Œç©ºç€é»˜è®¤å¸ƒé˜²ï¼‰
+	// å®é™…ç³»åˆ«æ²¡æœ‰ç”¨åˆ°
+	// ç»„åˆ«ç”¨åœ¨æ¯ä¸ªç»„çš„è‹±é›„ä¸é‡å¤åˆ¤æ–­ä¸Š
+	public ArrayList<Hero> loadFile() {
 		
-		File file = new File(INPUT_FILE_NAME);
-		BufferedReader br = null;
 		String line = null;
 		boolean isFirst = true;
 		int rowNumber = 0;
@@ -35,10 +34,14 @@ public class BestDefenders {
 		Integer pi;
 		String summonerName;
 		String group;
-		Boss boss = new Boss();
+		Configuration boss = new Configuration();
+		ArrayList<Hero> candidateHero = new ArrayList<Hero>();
 		
 		try {
-			br = new BufferedReader(new FileReader(file));
+			FileInputStream fis = new FileInputStream(INPUT_FILE_NAME);
+			InputStreamReader isr = new InputStreamReader(fis, "GBK");
+			BufferedReader br = new BufferedReader(isr);
+			
 			while((line=br.readLine())!=null){
 				
 				rowNumber++;
@@ -49,7 +52,7 @@ public class BestDefenders {
 					continue;
 				}
 				
-			    String[] segments = line.split("\t"); //°´tab·Ö¸î
+			    String[] segments = line.split("\t"); //æŒ‰tabåˆ†å‰²
 			    
 			    // skip lines which columns are less than 5
 			    if (segments.length < 5) {
@@ -57,7 +60,7 @@ public class BestDefenders {
 			    }
 			    
 			    // skip lines which hero is for AQ or AW attack
-			    if (segments.length == 6 && (segments[5].startsWith("AQ") || segments[5].startsWith("AW½ø¹¥"))) {
+			    if (segments.length == 6 && (segments[5].startsWith("AQ") || segments[5].startsWith("AWè¿›æ”»"))) {
 			    	continue;
 			    }
 			    
@@ -96,54 +99,30 @@ public class BestDefenders {
 			    
 			} // while
 			
-			// create summoner map
-			HashMap<String, Summoner> mapSummoner = new HashMap<String, Summoner>();
-			
-			// fill summoner's heros
-			Summoner summoner = null;
-			for (Hero hero : candidateHero) {
-				
-				// get summoner
-				if (mapSummoner.containsKey(hero.getSummoner())) {
-					summoner = mapSummoner.get(hero.getSummoner());
-				} else {
-					summoner = new Summoner(hero.getGroup(), hero.getSummoner());
-					mapSummoner.put(hero.getSummoner(), summoner);
-				}
-				
-				summoner.addHero(hero);
-			}
-			
-			// calculate summoner's pi
-			this.summoners = new Summoner[mapSummoner.values().size()];
-			int i = 0;
-			for (Summoner player : mapSummoner.values()) {
-				player.CalculatePI();
-				this.summoners[i++] = player;
-			}
-			
 			br.close();
-			
+			isr.close();
+			fis.close();
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			System.err.println("row number = " + rowNumber);
 			e.printStackTrace();
-		} 
+		}
+		return candidateHero; 
 
 	}
 	
-	// °´ÕÕbossºÍÕ½Á¦ÅÅĞò ÓÅÏÈÈ·¶¨boss È»ºó¶¨Õ½Á¦¸ßµÄÓ¢ĞÛ
-	public void sort() {
+	// æŒ‰ç…§bosså’Œæˆ˜åŠ›æ’åº ä¼˜å…ˆç¡®å®šboss ç„¶åå®šæˆ˜åŠ›é«˜çš„è‹±é›„
+/*	public void sort() {
 		this.candidateHero.sort(new HeroComparator() );
 		
 		// sort summoner by pi
 		Arrays.sort(this.summoners);
-	}
+	}*/
 	
-	// ÌôÑ¡Ó¢ĞÛ
-	public void choose() {
+	// æŒ‘é€‰è‹±é›„
+	/*public void choose() {
 		
 		HeroQualification heroCheck = new HeroQualification();
 		SummonerQualification summonerCheck = new SummonerQualification();
@@ -155,15 +134,15 @@ public class BestDefenders {
 				chosenHero.add(hero);
 			}
 		}
-	}
+	}*/
 	
-	// Ğ´Ò»¸ötab·Ö¸ôµÄÎÄ±¾ÎÄ¼ş£¬ÁĞÒªÇó£ºÏµ±ğ£¬Ó¢ĞÛ£¬³ÉÔ±£¬Õ½Á¦£¬×é±ğ
-	public void output() {
+	// å†™ä¸€ä¸ªtabåˆ†éš”çš„æ–‡æœ¬æ–‡ä»¶ï¼Œåˆ—è¦æ±‚ï¼šç³»åˆ«ï¼Œè‹±é›„ï¼Œæˆå‘˜ï¼Œæˆ˜åŠ›ï¼Œç»„åˆ«
+	/*public void output() {
 		File file = new File(OUTPUT_FILE_NAME);
 		BufferedWriter wr = null;
 		String line = null;
 		boolean isFirst = true;
-		String firstLine = "Ó¢ĞÛ\t³ÉÔ±\tÕ½Á¦\t×é±ğ\r\n";
+		String firstLine = "è‹±é›„\tæˆå‘˜\tæˆ˜åŠ›\tç»„åˆ«\r\n";
 		int rowNumber = 0;
 		
 		try {
@@ -200,7 +179,7 @@ public class BestDefenders {
 		} 
 
 		
-	}
+	}*/
 
 }
  

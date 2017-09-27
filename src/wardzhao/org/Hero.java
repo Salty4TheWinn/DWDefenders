@@ -1,12 +1,12 @@
 package wardzhao.org;
 
-public class Hero {
+public class Hero implements Comparable<Hero> {
 	
-	private String name; // Ó¢ĞÛÃû
-	private Integer pi; // Õ½Á¦
-	private String summoner; // Íæ¼Ò
-	private String group; // ×é±ğ
-	private boolean isBoss; // ·ÀÊØboss ÓÅÏÈÈ·¶¨
+	private String name; // è‹±é›„å
+	private Integer pi; // æˆ˜åŠ›
+	private String summoner; // ç©å®¶
+	private String group; // ç»„åˆ«
+	private boolean isBoss; // é˜²å®ˆboss ä¼˜å…ˆç¡®å®š
 	
 	public Hero(String name, Integer pi, String summoner, String group, boolean isBoss) {
 		super();
@@ -57,6 +57,11 @@ public class Hero {
 
 	public void setBoss(boolean isBoss) {
 		this.isBoss = isBoss;
+	}
+
+	@Override
+	public int compareTo(Hero o) {
+		return o.getPi() - this.getPi();
 	}
 
 

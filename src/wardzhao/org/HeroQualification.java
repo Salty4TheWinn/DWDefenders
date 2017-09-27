@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class HeroQualification {
-	private HashMap<String, HashSet<String>> heroMap; // ×é±ğ£¬Ó¢ĞÛ¼¯ºÏ
+	private HashMap<String, HashSet<String>> heroMap; // ç»„åˆ«ï¼Œè‹±é›„é›†åˆ
 	
 	public HeroQualification() {
 		super();
 		this.heroMap = new HashMap<String, HashSet<String>>();
-		this.heroMap.put("Ò»×é", new HashSet<String>());
-		this.heroMap.put("¶ş×é", new HashSet<String>());
-		this.heroMap.put("Èı×é", new HashSet<String>());
+		this.heroMap.put(Configuration.properties.getProperty("group1"), new HashSet<String>());
+		this.heroMap.put(Configuration.properties.getProperty("group2"), new HashSet<String>());
+		this.heroMap.put(Configuration.properties.getProperty("group3"), new HashSet<String>());
 	}
 	
 	public void choose(String group, String hero) {
@@ -19,6 +19,7 @@ public class HeroQualification {
 	}
 	
 	public boolean canBeChosen(String group, String hero) {
-		return !(this.heroMap.get(group)).contains(hero);
+		HashSet<String> heroSet = this.heroMap.get(group);
+		return !heroSet.contains(hero);
 	}
 }

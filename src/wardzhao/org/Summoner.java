@@ -8,12 +8,20 @@ import java.util.Comparator;
 
 /**
  * @author Ward Zhao
- * ÕâÊÇÍæ¼ÒÀà
+ * è¿™æ˜¯ç©å®¶ç±»
  */
 public class Summoner implements Comparable<Summoner>{
 
 	private ArrayList<Hero> heros = new ArrayList<Hero>();
 	
+	public ArrayList<Hero> getHeros() {
+		return heros;
+	}
+
+	public void setHeros(ArrayList<Hero> heros) {
+		this.heros = heros;
+	}
+
 	private String group = null;
 	
 	private String summonerName = null;
