@@ -1,28 +1,17 @@
 package wardzhao.org;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class DefenderLoader {
 
 	private final String INPUT_FILE_NAME = "多样性.txt";
-//	private final String OUTPUT_FILE_NAME = "布阵.txt";
-//	private ArrayList<Hero> chosenHero = new ArrayList<Hero>();
-	private Summoner[] summoners = null;
-	
-	// 读取一个tab分隔的文本文件，列要求：系别，英雄，成员，战力，组别，用途（AQ/AW进攻/AW布防，空着默认布防）
+// 读取一个tab分隔的文本文件，列要求：系别，英雄，成员，战力，组别，用途（AQ/AW进攻/AW布防，空着默认布防）
 	// 实际系别没有用到
 	// 组别用在每个组的英雄不重复判断上
 	public ArrayList<Hero> loadFile() {
@@ -34,7 +23,6 @@ public class DefenderLoader {
 		Integer pi;
 		String summonerName;
 		String group;
-		Configuration boss = new Configuration();
 		ArrayList<Hero> candidateHero = new ArrayList<Hero>();
 		
 		try {
@@ -95,7 +83,7 @@ public class DefenderLoader {
 			    }
 			    
 			   // load heros to list
-			    candidateHero.add(new Hero(	heroName,  pi,  summonerName, group, boss.isBoss(heroName)));
+			    candidateHero.add(new Hero(	heroName,  pi,  summonerName, group, Configuration.isBoss(heroName)));
 			    
 			} // while
 			
